@@ -1,7 +1,8 @@
 package main
 
-import "fmt"
+import "github.com/huayun321/bot/lib"
 
 func main() {
-	fmt.Println("hello")
+	b := lib.NewBot()
+	b.Run()
 }
