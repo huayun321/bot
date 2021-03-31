@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/huayun321/bot/global"
+	"github.com/huayun321/bot/lib"
 	setting "github.com/huayun321/bot/setting"
 	"log"
 )
@@ -14,14 +15,8 @@ func init() {
 }
 
 func main() {
-	//b := lib.NewBot()
-	//b.Run()
-	//s := setting.ServerSetting{}
-	//err := viper.UnmarshalKey("Server", &global.ServerSetting)
-	//log.Println(err)
-	log.Println(global.ServerSetting)
-	//log.Println(global.ServerSetting)
-
+	b := lib.NewBot()
+	b.Run()
 }
 
 func setupSetting() error {

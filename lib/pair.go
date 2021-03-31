@@ -5,33 +5,51 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
+	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/huayun321/bot/pancake/pair"
 	"log"
+	"math/big"
 	"strings"
 )
 
 type BPair struct {
-	bot *Bot
+	bot      *Bot
+	name     string
+	address  common.Address
+	tokenA   common.Address
+	tokenB   common.Address
+	reserve0 *big.Int
+	reserve1 *big.Int
 }
 
-func NewBPair(bot *Bot) *BPair {
-	bp := &BPair{bot: bot}
+func NewBPair(bot *Bot, name string, tokenA, tokenB common.Address) *BPair {
+	bp := &BPair{
+		bot:    bot,
+		name:   name,
+		tokenA: tokenA,
+		tokenB: tokenB,
+	}
+
+	pairAddress, err := bot.factoryInstance.GetPair(&bind.CallOpts{}, tokenA, tokenB)
+	if err != nil {
+		log.Fatal(err)
+	}
+	bp.address = pairAddress
 	return bp
 }
 
 func (bp *BPair) run() {
-	bp.subEvent()
+	go bp.subEvent()
 }
 
 func (bp *BPair) subEvent() {
-	contractAddress := common.HexToAddress("0xa527a61703d82139f8a06bc30097cc9caa2df5a6")
 	eventSignature := []byte("Sync(uint112,uint112)")
 	hash := crypto.Keccak256Hash(eventSignature)
 	query := ethereum.FilterQuery{
-		Addresses: []common.Address{contractAddress},
+		Addresses: []common.Address{bp.address},
 		Topics:    [][]common.Hash{{hash}},
 	}
 	logs := make(chan types.Log)
@@ -47,10 +65,10 @@ func (bp *BPair) subEvent() {
 	for {
 		select {
 		case err := <-sub.Err():
-			fmt.Println("==== got an event =====")
+			fmt.Println(bp.name, " ==== got an event =====")
 			log.Fatal(err)
 		case vLog := <-logs:
-			fmt.Println("==== get an event =====")
+			fmt.Println(bp.name, " ==== get an event =====")
 			ps := &pair.PairSync{}
 			err := contractAbi.UnpackIntoInterface(ps, "Sync", vLog.Data)
 			if err != nil {
