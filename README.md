@@ -19,3 +19,6 @@ cd $GOPATH/src/github.com/ethereum/go-ethereum/
 make
 make devtools
 ```
+
+## 03-31
+添加配置文件
