@@ -60,6 +60,9 @@ func (b *Bot) Run() {
 	b.setupChain(paths)
 	log.Println(b.allPairs)
 	log.Println(b.allChains)
+	log.Println("all pair length ", len(b.allPairs))
+	log.Println("all chain length ", len(b.allChains))
+
 	b.allChainsRun()
 	b.allPairsRun()
 	select {}
@@ -99,6 +102,11 @@ func (b *Bot) setupChain(paths [][]string) {
 			log.Println("setupChain pair ", err)
 			continue
 		}
+		for k, v := range ps {
+			if bp, ok := b.allPairs[v.address]; ok {
+				ps[k] = bp
+			}
+		}
 		//setup chain
 		chainName := strings.Join(path, "->")
 		paths := make([]common.Address, 0)
@@ -111,9 +119,13 @@ func (b *Bot) setupChain(paths [][]string) {
 	}
 }
 
-func (b *Bot) addPairs(bp []*BPair) {
-	for _, v := range bp {
-		b.allPairs[v.address] = v
+func (b *Bot) addPairs(bps []*BPair) {
+	for _, bp := range bps {
+		if _, ok := b.allPairs[bp.address]; ok {
+			continue
+		} else {
+			b.allPairs[bp.address] = bp
+		}
 	}
 }
 
@@ -143,7 +155,6 @@ func (b *Bot) allPairsRun() {
 		log.Println(p.name, "run...")
 		p.run()
 	}
-	log.Println("all pair length ", len(b.allPairs))
 }
 
 func (b *Bot) allChainsRun() {
@@ -151,7 +162,6 @@ func (b *Bot) allChainsRun() {
 		log.Println(c.name, "run...")
 		c.run()
 	}
-	log.Println("all chain length ", len(b.allChains))
 }
 
 func parseSwapSetting() *swapConfig {

@@ -94,13 +94,13 @@ func (bp *BPair) subEvent() {
 }
 
 func (bp *BPair) handleEvent(event types.Log) {
-	fmt.Println(bp.name, " ==== get an event =====")
+	//fmt.Println(bp.name, " ==== get an event =====")
 	ps := &pair.PairSync{}
 	err := bp.contractAbi.UnpackIntoInterface(ps, "Sync", event.Data)
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("--------- handleEvent ", bp.name, ps)
+	//log.Println("--------- handleEvent ", bp.name, ps)
 	bp.updateReserve(ps)
 	for _, v := range bp.consumer {
 		v.pipe <- 1
@@ -162,5 +162,8 @@ func (bp *BPair) getReserve(tokenA common.Address) (*big.Int, *big.Int) {
 }
 
 func (bp *BPair) addConsumer(chain *Chain) {
+	bp.rw.Lock()
+	defer bp.rw.Unlock()
+	log.Println(bp.name, "add consumer ", chain.name)
 	bp.consumer = append(bp.consumer, chain)
 }

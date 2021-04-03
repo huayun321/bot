@@ -30,9 +30,13 @@ func newChain(name string, path []common.Address, pairs []*BPair, config *swapCo
 }
 
 func (c *Chain) subEvent() {
-	for v := range c.pipe {
-		log.Println(v)
+	//i := 0
+	for range c.pipe {
+		//if i >= 1 {
+		//	return
+		//}
 		go c.handleEvent()
+		//i++
 	}
 }
 
@@ -42,6 +46,9 @@ func (c *Chain) run() {
 }
 
 func (c *Chain) handleEvent() {
+	//if c.name == "busd->wbnb->egg->busd" {
+	//	return
+	//}
 	out, err := c.getAmountsOut(c.config.Amount)
 	if err != nil {
 		log.Println(err)
@@ -53,10 +60,10 @@ func (c *Chain) handleEvent() {
 func (c *Chain) checkProfit(amountOut *big.Int) {
 	result := new(big.Int)
 	result.Sub(amountOut, c.config.Amount)
-	log.Println(c.name, c.config.Amount, amountOut, result)
+	//log.Println(c.name, c.config.Amount, amountOut, result, c.want)
 
 	if result.Cmp(c.want) >= 0 {
-		log.Println(c.name, c.config.Amount, amountOut, result)
+		log.Println(c.name, c.config.Amount, amountOut, result, c.want)
 		//swap
 	}
 }
@@ -101,17 +108,19 @@ func (c *Chain) getAmountsOut(amountIn *big.Int) (*big.Int, error) {
 	for i := 0; i < len(c.path)-1; i++ {
 		r0, r1 := c.pairs[i].getReserve(c.path[i])
 		//log.Println("getAmountsOut chain ", c.name, " pair ", c.pairs[i].name, " address ", c.pairs[i].address)
-		//log.Println("getAmountsOut chain r0 r1 ", r0, r1)
+		//log.Println("getAmountsOut chain result r0 r1 ", result, r0, r1)
 		result, err = getAmountOut(result, r0, r1)
 		if err != nil {
 			return nil, err
 		}
+		//log.Print("out i ", i, " -- ", result, "---")
 	}
 	return result, err
 }
 
 func (c *Chain) subscribe() {
 	for _, p := range c.pairs {
+		//log.Println(c.name, "sub pair", p.name)
 		p.addConsumer(c)
 	}
 }
