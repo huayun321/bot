@@ -44,7 +44,7 @@ func (c *Chain) subEvent() {
 
 func (c *Chain) run() {
 	c.subscribe()
-	go c.subEvent()
+	//go c.subEvent()
 }
 
 func (c *Chain) handleEvent() {
