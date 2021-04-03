@@ -26,6 +26,7 @@ type Bot struct {
 	allPairs        map[common.Address]*BPair
 	allChains       map[string]*Chain
 	swapConfig      *swapConfig
+	swap            *Swap
 }
 
 func NewBot() *Bot {
@@ -52,6 +53,8 @@ func NewBot() *Bot {
 	b.factoryInstance = instance
 
 	b.swapConfig = parseSwapSetting()
+
+	b.swap = newSwap(b)
 	return b
 }
 
@@ -113,7 +116,7 @@ func (b *Bot) setupChain(paths [][]string) {
 		for _, v := range path {
 			paths = append(paths, common.HexToAddress(allMap[v]))
 		}
-		c := newChain(chainName, paths, ps, b.swapConfig)
+		c := newChain(chainName, paths, ps, b.swapConfig, b.swap)
 		b.addPairs(ps)
 		b.addChains(c)
 	}

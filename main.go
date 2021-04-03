@@ -42,5 +42,9 @@ func setupSetting() error {
 	if err != nil {
 		return err
 	}
+	err = s.ReadSection("Account", &global.AccountSetting)
+	if err != nil {
+		return err
+	}
 	return nil
 }

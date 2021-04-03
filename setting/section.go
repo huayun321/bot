@@ -22,3 +22,8 @@ type SwapSetting struct {
 	Price  string
 	Cost   string
 }
+
+type AccountSetting struct {
+	Public  string
+	Private string
+}

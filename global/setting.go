@@ -7,4 +7,5 @@ var (
 	ContractSetting *setting.ContractSetting
 	TokensSetting   *setting.TokensSetting
 	SwapSetting     *setting.SwapSetting
+	AccountSetting  *setting.AccountSetting
 )
