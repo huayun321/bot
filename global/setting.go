@@ -5,6 +5,6 @@ import "github.com/huayun321/bot/setting"
 var (
 	ServerSetting   *setting.ServerSetting
 	ContractSetting *setting.ContractSetting
-	TokesSetting    *setting.TokensSetting
+	TokensSetting   *setting.TokensSetting
 	SwapSetting     *setting.SwapSetting
 )

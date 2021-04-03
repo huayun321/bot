@@ -2,6 +2,7 @@ package lib
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -17,7 +18,7 @@ import (
 )
 
 type BPair struct {
-	rw          sync.RWMutex
+	rw          sync.Mutex
 	bot         *Bot
 	name        string
 	address     common.Address
@@ -29,26 +30,39 @@ type BPair struct {
 	consumer    []*Chain
 }
 
-func NewBPair(bot *Bot, name string, path [2]common.Address) *BPair {
+func NewBPair(bot *Bot, name, tokenA, tokenB string) (*BPair, error) {
+	ta := common.HexToAddress(tokenA)
+	tb := common.HexToAddress(tokenB)
 	bp := &BPair{
-		bot:  bot,
-		name: name,
+		bot:      bot,
+		name:     name,
+		consumer: make([]*Chain, 0),
 	}
 
-	pairAddress, err := bot.factoryInstance.GetPair(&bind.CallOpts{}, path[0], path[1])
+	pairAddress, err := bot.factoryInstance.GetPair(&bind.CallOpts{}, ta, tb)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("new pair name", name, " err ", err)
+		return nil, err
 	}
 	bp.address = pairAddress
-	bp.sortTokens(path[0], path[1])
 
-	contractAbi, err := abi.JSON(strings.NewReader(string(pair.PairABI)))
+	err = bp.sortTokens(ta, tb)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
+	}
+
+	err = bp.checkReserve()
+	if err != nil {
+		return nil, err
+	}
+
+	contractAbi, err := abi.JSON(strings.NewReader(pair.PairABI))
+	if err != nil {
+		return nil, err
 	}
 	bp.contractAbi = contractAbi
 
-	return bp
+	return bp, nil
 }
 
 func (bp *BPair) run() {
@@ -86,25 +100,46 @@ func (bp *BPair) handleEvent(event types.Log) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	bp.rw.Lock()
-	defer bp.rw.Unlock()
-	bp.reserve0 = ps.Reserve0
-	bp.reserve1 = ps.Reserve1
-	//todo send to chain
+	log.Println("--------- handleEvent ", bp.name, ps)
+	bp.updateReserve(ps)
 	for _, v := range bp.consumer {
 		v.pipe <- 1
 	}
 }
 
-func (bp *BPair) sortTokens(tokenA, tokenB common.Address) {
+func (bp *BPair) updateReserve(ps *pair.PairSync) {
+	bp.rw.Lock()
+	defer bp.rw.Unlock()
+	bp.reserve0 = ps.Reserve0
+	bp.reserve1 = ps.Reserve1
+}
+
+func (bp *BPair) checkReserve() error {
+	instance, err := pair.NewPair(bp.address, bp.bot.rpc)
+	if err != nil {
+		return err
+	}
+	rs, err := instance.GetReserves(&bind.CallOpts{})
+	if err != nil {
+		return err
+	}
+	if rs.Reserve0.Cmp(big.NewInt(0)) <= 0 || rs.Reserve1.Cmp(big.NewInt(0)) <= 0 {
+		return errors.New("reserve0 or reserve1 is 0")
+	}
+	bp.reserve0 = rs.Reserve0
+	bp.reserve1 = rs.Reserve1
+	return nil
+}
+
+func (bp *BPair) sortTokens(tokenA, tokenB common.Address) error {
 	//check tokenA = t0
 	instance, err := pair.NewPair(bp.address, bp.bot.rpc)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	token0, err := instance.Token0(&bind.CallOpts{})
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	if tokenA == token0 {
 		bp.tokenA = tokenA
@@ -113,14 +148,19 @@ func (bp *BPair) sortTokens(tokenA, tokenB common.Address) {
 		bp.tokenA = tokenB
 		bp.tokenB = tokenA
 	}
+	return nil
 }
 
 func (bp *BPair) getReserve(tokenA common.Address) (*big.Int, *big.Int) {
-	bp.rw.RLock()
-	defer bp.rw.RUnlock()
+	bp.rw.Lock()
+	defer bp.rw.Unlock()
 	if tokenA == bp.tokenA {
 		return bp.reserve0, bp.reserve1
 	} else {
 		return bp.reserve1, bp.reserve0
 	}
+}
+
+func (bp *BPair) addConsumer(chain *Chain) {
+	bp.consumer = append(bp.consumer, chain)
 }

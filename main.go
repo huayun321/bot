@@ -34,7 +34,7 @@ func setupSetting() error {
 	if err != nil {
 		return err
 	}
-	err = s.ReadSection("Tokens", &global.TokesSetting)
+	err = s.ReadSection("Tokens", &global.TokensSetting)
 	if err != nil {
 		return err
 	}

@@ -2,7 +2,6 @@ package lib
 
 import (
 	"errors"
-	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/huayun321/bot/global"
@@ -10,6 +9,7 @@ import (
 	"github.com/kokardy/listing"
 	"log"
 	"math/big"
+	"strings"
 )
 
 type swapConfig struct {
@@ -23,13 +23,15 @@ type Bot struct {
 	rpc             *ethclient.Client
 	ws              *ethclient.Client
 	factoryInstance *factory.Factory
-	allPairs        map[string]*BPair
+	allPairs        map[common.Address]*BPair
+	allChains       map[string]*Chain
 	swapConfig      *swapConfig
 }
 
 func NewBot() *Bot {
 	b := &Bot{
-		allPairs: make(map[string]*BPair),
+		allPairs:  make(map[common.Address]*BPair),
+		allChains: make(map[string]*Chain),
 	}
 	rpc, err := ethclient.Dial(global.ServerSetting.RPC)
 	if err != nil {
@@ -54,38 +56,102 @@ func NewBot() *Bot {
 }
 
 func (b *Bot) Run() {
-	b.generatePath()
-	//b.allPairsRun()
-	//select {}
+	paths := b.generatePath()
+	b.setupChain(paths)
+	log.Println(b.allPairs)
+	log.Println(b.allChains)
+	b.allChainsRun()
+	b.allPairsRun()
+	select {}
 }
 
-func (b *Bot) generatePath() {
-	//symbol := global.TokesSetting.Symbol
-	//address := global.TokesSetting.Address
-	//ta := common.HexToAddress(address)
+func (b *Bot) generatePath() [][]string {
+	symbol := global.TokensSetting.Symbol
 
 	symbols := make([]string, 0)
-	addresses := make([]common.Address, 0)
-	//path := make([]common.Address, 0)
-
-	for k, v := range global.TokesSetting.Others {
+	for k := range global.TokensSetting.Others {
 		symbols = append(symbols, k)
-		addresses = append(addresses, common.HexToAddress(v))
-	}
-	ss := listing.StringReplacer(symbols)
-	fmt.Println("Permutations")
-	for perm := range listing.Permutations(ss, 2, false, 5) {
-		fmt.Println(perm.(listing.StringReplacer))
 	}
 
-	log.Println(b.allPairs)
+	paths := make([][]string, 0)
+	ss := listing.StringReplacer(symbols)
+	for perm := range listing.Permutations(ss, 2, false, 5) {
+		path := make([]string, 0)
+		path = append(path, symbol)
+		for _, s := range perm.(listing.StringReplacer) {
+			path = append(path, s)
+		}
+		path = append(path, symbol)
+		paths = append(paths, path)
+	}
+	log.Println("generatePath", paths)
+	return paths
+}
+
+func (b *Bot) setupChain(paths [][]string) {
+	allMap := global.TokensSetting.Others
+	allMap[global.TokensSetting.Symbol] = global.TokensSetting.Address
+	//convert path
+	for _, path := range paths {
+		//setup pair
+		ps, err := b.setupPair(path)
+		if err != nil {
+			log.Println("setupChain pair ", err)
+			continue
+		}
+		//setup chain
+		chainName := strings.Join(path, "->")
+		paths := make([]common.Address, 0)
+		for _, v := range path {
+			paths = append(paths, common.HexToAddress(allMap[v]))
+		}
+		c := newChain(chainName, paths, ps, b.swapConfig)
+		b.addPairs(ps)
+		b.addChains(c)
+	}
+}
+
+func (b *Bot) addPairs(bp []*BPair) {
+	for _, v := range bp {
+		b.allPairs[v.address] = v
+	}
+}
+
+func (b *Bot) addChains(c *Chain) {
+	b.allChains[c.name] = c
+}
+
+func (b *Bot) setupPair(path []string) ([]*BPair, error) {
+	allMap := global.TokensSetting.Others
+	allMap[global.TokensSetting.Symbol] = global.TokensSetting.Address
+	pairs := make([]*BPair, 0)
+	for i := 0; i < len(path)-1; i++ {
+		s := []string{path[i], path[i+1]}
+		name := strings.Join(s, "-")
+		bp, err := NewBPair(b, name, allMap[path[i]], allMap[path[i+1]])
+		if err != nil {
+			log.Println("pair name err ", name, err)
+			return nil, err
+		}
+		pairs = append(pairs, bp)
+	}
+	return pairs, nil
 }
 
 func (b *Bot) allPairsRun() {
-	for n, p := range b.allPairs {
-		log.Println(n, "run...")
+	for _, p := range b.allPairs {
+		log.Println(p.name, "run...")
 		p.run()
 	}
+	log.Println("all pair length ", len(b.allPairs))
+}
+
+func (b *Bot) allChainsRun() {
+	for _, c := range b.allChains {
+		log.Println(c.name, "run...")
+		c.run()
+	}
+	log.Println("all chain length ", len(b.allChains))
 }
 
 func parseSwapSetting() *swapConfig {

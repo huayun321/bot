@@ -12,11 +12,11 @@ type Chain struct {
 	path   []common.Address
 	pairs  []*BPair
 	pipe   chan int
-	config swapConfig
+	config *swapConfig
 	want   *big.Int
 }
 
-func newChain(name string, path []common.Address, pairs []*BPair, config swapConfig) *Chain {
+func newChain(name string, path []common.Address, pairs []*BPair, config *swapConfig) *Chain {
 	c := &Chain{
 		name:   name,
 		path:   path,
@@ -36,23 +36,32 @@ func (c *Chain) subEvent() {
 	}
 }
 
+func (c *Chain) run() {
+	c.subscribe()
+	go c.subEvent()
+}
+
 func (c *Chain) handleEvent() {
 	out, err := c.getAmountsOut(c.config.Amount)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return
 	}
 	c.checkProfit(out)
 }
 
 func (c *Chain) checkProfit(amountOut *big.Int) {
-	if amountOut.Cmp(c.want) > 0 {
-		log.Println(c.name, c.config.Amount, amountOut)
+	result := new(big.Int)
+	result.Sub(amountOut, c.config.Amount)
+	log.Println(c.name, c.config.Amount, amountOut, result)
+
+	if result.Cmp(c.want) >= 0 {
+		log.Println(c.name, c.config.Amount, amountOut, result)
 		//swap
 	}
 }
 
-func calculateWant(pairLength int, config swapConfig) *big.Int {
+func calculateWant(pairLength int, config *swapConfig) *big.Int {
 	// contract * cost * price + profit
 	want := new(big.Int)
 	want.Mul(config.Cost, config.Price)
@@ -62,6 +71,10 @@ func calculateWant(pairLength int, config swapConfig) *big.Int {
 }
 
 func getAmountOut(amountIn, reserveIn, reserveOut *big.Int) (*big.Int, error) {
+	if reserveIn == nil || reserveOut == nil || amountIn == nil {
+		return nil, errors.New("nil args error")
+	}
+	//log.Println("===== amountOut rin rout ", reserveIn, " ",  reserveOut)
 	if amountIn.Cmp(big.NewInt(0)) <= 0 {
 		return nil, errors.New("amountIn 0")
 	}
@@ -79,19 +92,26 @@ func getAmountOut(amountIn, reserveIn, reserveOut *big.Int) (*big.Int, error) {
 	numerator.Mul(amountInWithFee, reserveOut)
 	denominator.Add(new(big.Int).Mul(reserveIn, big.NewInt(1000)), amountInWithFee)
 	amountOut.Div(numerator, denominator)
-	log.Println("===== amountOut", amountOut)
 	return amountOut, nil
 }
 
 func (c *Chain) getAmountsOut(amountIn *big.Int) (*big.Int, error) {
 	result := new(big.Int).Set(amountIn)
 	var err error
-	log.Println("getAmountsOut ", len(c.path))
-
 	for i := 0; i < len(c.path)-1; i++ {
-		log.Println("getAmountsOut i ", i)
 		r0, r1 := c.pairs[i].getReserve(c.path[i])
+		//log.Println("getAmountsOut chain ", c.name, " pair ", c.pairs[i].name, " address ", c.pairs[i].address)
+		//log.Println("getAmountsOut chain r0 r1 ", r0, r1)
 		result, err = getAmountOut(result, r0, r1)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return result, err
+}
+
+func (c *Chain) subscribe() {
+	for _, p := range c.pairs {
+		p.addConsumer(c)
+	}
 }
