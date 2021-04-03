@@ -15,3 +15,10 @@ type TokensSetting struct {
 	Address string
 	Others  map[string]string
 }
+
+type SwapSetting struct {
+	Amount string
+	Profit string
+	Price  string
+	Cost   string
+}

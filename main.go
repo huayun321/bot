@@ -17,6 +17,8 @@ func init() {
 func main() {
 	b := lib.NewBot()
 	b.Run()
+
+	//log.Println(global.SwapSetting)
 }
 
 func setupSetting() error {
@@ -33,6 +35,10 @@ func setupSetting() error {
 		return err
 	}
 	err = s.ReadSection("Tokens", &global.TokesSetting)
+	if err != nil {
+		return err
+	}
+	err = s.ReadSection("Swap", &global.SwapSetting)
 	if err != nil {
 		return err
 	}
