@@ -16,7 +16,6 @@ import (
 )
 
 type Swap struct {
-	mu sync.Mutex
 	b          *Bot
 	cid        *big.Int
 	sc         *swapConfig
@@ -24,7 +23,25 @@ type Swap struct {
 	privateKey *ecdsa.PrivateKey
 	public     common.Address
 	gasPrice   *big.Int
-	router *router.Router
+	router     *router.Router
+	tl         *TxLimiter
+	limit      int64
+}
+
+type TxLimiter struct {
+	sync.Mutex
+	lastTx int64
+}
+
+func (tl *TxLimiter) check() bool {
+	tl.Lock()
+	defer tl.Unlock()
+	now := time.Now().Unix()
+	if now-tl.lastTx <= 0 {
+		return false
+	}
+	tl.lastTx = now
+	return true
 }
 
 func newSwap(b *Bot) *Swap {
@@ -60,23 +77,32 @@ func newSwap(b *Bot) *Swap {
 		privateKey: privateKey,
 		public:     fromAddress,
 		gasPrice:   b.swapConfig.Price,
-		router: instance,
+		router:     instance,
+		tl:         &TxLimiter{},
+		limit:      143,
 	}
 	return s
 }
 
 func (s *Swap) startTx(amountIn, amountOut *big.Int, path []common.Address) {
-	atomic.AddUint64(&s.nonce, 1)
+	if ok := s.tl.check(); !ok {
+		return
+	}
+	if atomic.LoadInt64(&s.limit) <= 0 {
+		log.Println(s.limit)
+		return
+	}
+	atomic.AddInt64(&s.limit, -1)
 	auth, err := bind.NewKeyedTransactorWithChainID(s.privateKey, s.cid)
 	if err != nil {
 		log.Fatal(err)
 	}
 	auth.Nonce = big.NewInt(int64(s.nonce))
-	auth.Value = big.NewInt(0)               // in wei
+	auth.Value = big.NewInt(0)     // in wei
 	auth.GasLimit = uint64(360000) // in units
 	auth.GasPrice = s.gasPrice
 
-	deadLine := time.Now().Unix() + 10
+	deadLine := time.Now().Unix() + 60
 	dlb := big.NewInt(deadLine)
 
 	tx, err := s.router.SwapExactTokensForTokens(auth, amountIn, amountOut, path, s.public, dlb)
@@ -85,4 +111,9 @@ func (s *Swap) startTx(amountIn, amountOut *big.Int, path []common.Address) {
 		return
 	}
 	log.Println(tx.Hash())
+	nonce, err := s.b.rpc.PendingNonceAt(context.Background(), s.public)
+	if err != nil {
+		log.Fatal(err)
+	}
+	s.nonce = nonce
 }

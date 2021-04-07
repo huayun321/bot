@@ -22,3 +22,31 @@ make devtools
 
 ## 03-31
 添加配置文件
+
+## 04-04
+todo
+只赚一刀策略
+将算出的多余利润放入GPRICE
+
+under price提价
+同nonce提价
+
+## 04-05
+20比交易测试
+0.59238394
+0x8c938d49ed896f03974dac63b4df205c7c39786d095976795a198794ac78e2da
+
+todo 
+heroku background app
+binance smart chain node 
+
+整理log
+租服务器
+整理swap配置文件
+
+解决aws账户问题
+充值bnb busd
+
+
+
+

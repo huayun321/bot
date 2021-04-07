@@ -103,7 +103,7 @@ func (bp *BPair) handleEvent(event types.Log) {
 	//log.Println("--------- handleEvent ", bp.name, ps)
 	bp.updateReserve(ps)
 	for _, c := range bp.consumer {
-		c.handleEvent()
+		go c.handleEvent()
 	}
 }
 
