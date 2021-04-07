@@ -6,5 +6,9 @@ factory:
 	solc --abi pancake/IpancakeFactory.sol -o pancake --overwrite
 	solc --bin pancake/IpancakeFactory.sol -o pancake --overwrite
 	abigen --bin=pancake/IpancakeFactory.bin --abi=pancake/IpancakeFactory.abi --pkg=factory --out=IpancakeFactory.go
+router:
+	solc --abi pancake/IPancakeRouter02.sol -o pancake --overwrite
+	solc --bin pancake/IPancakeRouter02.sol -o pancake --overwrite
+	abigen --bin=pancake/IPancakeRouter02.bin --abi=pancake/IPancakeRouter02.abi --pkg=router --out=IPancakeRouter02.go
 run:
 	go run main.go

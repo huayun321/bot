@@ -102,8 +102,8 @@ func (bp *BPair) handleEvent(event types.Log) {
 	}
 	//log.Println("--------- handleEvent ", bp.name, ps)
 	bp.updateReserve(ps)
-	for _, v := range bp.consumer {
-		v.pipe <- 1
+	for _, c := range bp.consumer {
+		go c.handleEvent()
 	}
 }
 

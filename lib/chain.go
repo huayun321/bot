@@ -14,15 +14,17 @@ type Chain struct {
 	pipe   chan int
 	config *swapConfig
 	want   *big.Int
+	swap   *Swap
 }
 
-func newChain(name string, path []common.Address, pairs []*BPair, config *swapConfig) *Chain {
+func newChain(name string, path []common.Address, pairs []*BPair, config *swapConfig, swap *Swap) *Chain {
 	c := &Chain{
 		name:   name,
 		path:   path,
 		pairs:  pairs,
 		pipe:   make(chan int, 10),
 		config: config,
+		swap:   swap,
 	}
 	want := calculateWant(len(pairs), config)
 	c.want = want
@@ -42,7 +44,7 @@ func (c *Chain) subEvent() {
 
 func (c *Chain) run() {
 	c.subscribe()
-	go c.subEvent()
+	//go c.subEvent()
 }
 
 func (c *Chain) handleEvent() {
@@ -54,10 +56,13 @@ func (c *Chain) handleEvent() {
 		log.Println(err)
 		return
 	}
-	c.checkProfit(out)
+	ok := c.checkProfit(out)
+	if ok {
+		c.swap.startTx(c.config.Amount, out.Add(c.config.Amount, c.want), c.path)
+	}
 }
 
-func (c *Chain) checkProfit(amountOut *big.Int) {
+func (c *Chain) checkProfit(amountOut *big.Int) bool {
 	result := new(big.Int)
 	result.Sub(amountOut, c.config.Amount)
 	//log.Println(c.name, c.config.Amount, amountOut, result, c.want)
@@ -65,7 +70,9 @@ func (c *Chain) checkProfit(amountOut *big.Int) {
 	if result.Cmp(c.want) >= 0 {
 		log.Println(c.name, c.config.Amount, amountOut, result, c.want)
 		//swap
+		return true
 	}
+	return false
 }
 
 func calculateWant(pairLength int, config *swapConfig) *big.Int {

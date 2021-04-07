@@ -1,0 +1,18 @@
+Server:
+  rpc: "https://bsc-dataseed.binance.org"
+  ws: "wss://bsc-ws-node.nariox.org:443"
+Contract:
+  factory: "0xBCfCcbde45cE874adCB698cC183deBcF17952812"
+  router: "0x05fF2B0DB69458A0750badebc4f9e13aDd608C7F"
+Tokens:
+  symbol: "busd"
+  address: "0xe9e7cea3dedca5984780bafc599bd69add087d56"
+  others:
+    cake: "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82"
+    wbnb: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"
+    etch: "0x2170ed0880ac9a755fd29b2688956bd959f933f8"
+    beth: "0x250632378e573c6be1ac2f97fcdf00515d0aa91b"
+Swap:
+  amount: "1000000000000000000"
+  price: "11000000000"
+  cost: "120000"
