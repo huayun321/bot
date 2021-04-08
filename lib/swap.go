@@ -11,7 +11,6 @@ import (
 	"log"
 	"math/big"
 	"sync"
-	"sync/atomic"
 	"time"
 )
 
@@ -88,11 +87,11 @@ func (s *Swap) startTx(amountIn, amountOut *big.Int, path []common.Address) {
 	if ok := s.tl.check(); !ok {
 		return
 	}
-	if atomic.LoadInt64(&s.limit) <= 0 {
-		log.Println(s.limit)
-		return
-	}
-	atomic.AddInt64(&s.limit, -1)
+	//if atomic.LoadInt64(&s.limit) <= 0 {
+	//	log.Println(s.limit)
+	//	return
+	//}
+	//atomic.AddInt64(&s.limit, -1)
 	auth, err := bind.NewKeyedTransactorWithChainID(s.privateKey, s.cid)
 	if err != nil {
 		log.Fatal(err)
