@@ -35,7 +35,7 @@ Tokens:
 Swap:
   amount: "500000000000000000000" #500 busd
   profit: "2500000000000000000" # 2.5 busd
-  price: "15000000000" # 11g
+  price: "11000000000" # 11g
   cost: "120000"
 Account:
   public: "0x9d895F81498c0C9AC9e847b00302913955fFba62"
