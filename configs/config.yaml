@@ -33,8 +33,8 @@ Tokens:
     ada: "0x3ee2200efb3400fabb9aacf31297cbdd1d435d47"
     xvs: "0xcf6bb5389c92bdda8a3747ddb454cb7a64626c63"
 Swap:
-  amount: "300000000000000000000" #300 busd
-  profit: "10000000000000000" # 0.01 busd
+  amount: "500000000000000000000" #500 busd
+  profit: "1000000000000000000" # 1 busd
   price: "10987654321" # 11g
   cost: "120000"
 Account:
