@@ -97,18 +97,19 @@ func (s *Swap) startTx(amountIn, amountOut *big.Int, path []common.Address) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	nonce, err := s.b.rpc.PendingNonceAt(context.Background(), s.public)
-	if err != nil {
-		log.Fatal(err)
-	}
-	auth.Nonce = big.NewInt(int64(nonce))
+	auth.Nonce = big.NewInt(int64(s.nonce))
 	auth.Value = big.NewInt(0)     // in wei
 	auth.GasLimit = uint64(360000) // in units
 	auth.GasPrice = s.gasPrice
 
 	deadLine := time.Now().Unix() + 600
 	dlb := big.NewInt(deadLine)
+
+	nonce, err := s.b.rpc.PendingNonceAt(context.Background(), s.public)
+	if err != nil {
+		log.Fatal(err)
+	}
+	s.nonce = nonce
 
 	tx, err := s.router.SwapExactTokensForTokens(auth, amountIn, amountOut, path, s.public, dlb)
 	if err != nil {
