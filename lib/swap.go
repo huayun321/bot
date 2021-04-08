@@ -79,7 +79,7 @@ func newSwap(b *Bot) *Swap {
 		gasPrice:   b.swapConfig.Price,
 		router:     instance,
 		tl:         &TxLimiter{},
-		limit:      143,
+		limit:      50,
 	}
 	return s
 }
