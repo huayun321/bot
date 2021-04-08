@@ -34,7 +34,7 @@ Tokens:
     xvs: "0xcf6bb5389c92bdda8a3747ddb454cb7a64626c63"
 Swap:
   amount: "300000000000000000000" #300 busd
-  profit: "500000000000000000" # 1 busd
+  profit: "100000000000000000" # 0.1 busd
   price: "10987654321" # 11g
   cost: "120000"
 Account:
