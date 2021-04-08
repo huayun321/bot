@@ -49,10 +49,13 @@ binance smart chain node
 
 
 ## 04-08
-todo 
+
 优化
-underprice
-low nonce
+underprice //ok
+low nonce //ok
+todo
+任意位数的token
+
 
 
 
