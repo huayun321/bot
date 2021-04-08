@@ -80,15 +80,21 @@ func newSwap(b *Bot) *Swap {
 		tl:         &TxLimiter{},
 		limit:      200,
 	}
+
+	go s.pendingNonce()
+
 	return s
 }
 
 func (s *Swap) pendingNonce() {
-	nonce, err := s.b.rpc.PendingNonceAt(context.Background(), s.public)
-	if err != nil {
-		log.Fatal(err)
+	t := time.NewTicker(100 * time.Millisecond)
+	for range t.C {
+		nonce, err := s.b.rpc.PendingNonceAt(context.Background(), s.public)
+		if err != nil {
+			log.Fatal(err)
+		}
+		s.nonce = nonce
 	}
-	s.nonce = nonce
 }
 
 func (s *Swap) startTx(amountIn, amountOut *big.Int, path []common.Address) {
@@ -111,8 +117,6 @@ func (s *Swap) startTx(amountIn, amountOut *big.Int, path []common.Address) {
 
 	deadLine := time.Now().Unix() + 600
 	dlb := big.NewInt(deadLine)
-
-	go s.pendingNonce()
 
 	tx, err := s.router.SwapExactTokensForTokens(auth, amountIn, amountOut, path, s.public, dlb)
 	if err != nil {

@@ -48,5 +48,13 @@ binance smart chain node
 充值bnb busd
 
 
+## 04-08
+todo 
+优化
+underprice
+low nonce
+
+
+
 
 
