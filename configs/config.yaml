@@ -2,7 +2,7 @@ Server:
 #  rpc: "http://localhost:8545"
 #  ws: "ws://localhost:8546"
   rpc: "https://bsc-dataseed.binance.org"
-    ws: "wss://bsc-ws-node.nariox.org:443"
+  ws: "wss://bsc-ws-node.nariox.org:443"
 Contract:
   factory: "0xBCfCcbde45cE874adCB698cC183deBcF17952812"
   router: "0x05fF2B0DB69458A0750badebc4f9e13aDd608C7F"
