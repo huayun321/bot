@@ -102,9 +102,7 @@ func (s *Swap) startTx(amountIn, amountOut *big.Int, path []common.Address) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	s.nonce = nonce
-
-	auth.Nonce = big.NewInt(int64(s.nonce))
+	auth.Nonce = big.NewInt(int64(nonce))
 	auth.Value = big.NewInt(0)     // in wei
 	auth.GasLimit = uint64(360000) // in units
 	auth.GasPrice = s.gasPrice
