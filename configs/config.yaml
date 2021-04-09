@@ -45,9 +45,9 @@ Tokens:
     sfp: "0xd41fdb03ba84762dd66a0af1a6c8540ff1ba5dfb"
 Swap:
   amount: "1000000000000000000000" #1000 busd
-  profit: "100000000000000000" # 0.1 busd
-  price: "5000000001" # 5g
-  max: "20000000001" # max price 50g
+  profit: "1000000000000000000" # 1 busd
+  price: "5000000008" # 5g
+  max:  "18000000008" # max price 18g
   cost: "120000"
   rate: "500"
 Account:
