@@ -68,7 +68,7 @@ func (c *Chain) handleEvent() {
 		}
 		cost := calculateCostWithPrice(len(c.pairs), c.config, price) //bnb cost
 		want := calculateWantWithPrice(cost, c.config.Rate)           // busd want
-		log.Println(c.name, c.config.Amount, out, new(big.Int).Sub(out, want), cost, price)
+		log.Println(c.name, c.config.Amount, out, new(big.Int).Sub(out, c.config.Amount), cost, price)
 		c.swap.startTx(c.config.Amount, new(big.Int).Add(c.config.Amount, want), price, c.path)
 	}
 }
