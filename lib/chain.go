@@ -58,21 +58,39 @@ func (c *Chain) handleEvent() {
 	}
 	ok := c.checkProfit(out)
 	if ok {
-		c.swap.startTx(c.config.Amount, out.Add(c.config.Amount, c.want), c.path)
+		// new price
+		price := calculatePrice(len(c.pairs), c.config, out) // bnb price
+		if price.Cmp(c.config.Price) < 0 {
+			return
+		}
+		if price.Cmp(c.config.Max) >= 0 {
+			price = c.config.Max
+		}
+		cost := calculateCostWithPrice(len(c.pairs), c.config, price) //bnb cost
+		want := calculateWantWithPrice(cost, c.config.Rate)           // busd want
+		c.swap.startTx(c.config.Amount, new(big.Int).Add(c.config.Amount, want), price, c.path, c.name)
 	}
 }
 
 func (c *Chain) checkProfit(amountOut *big.Int) bool {
 	result := new(big.Int)
 	result.Sub(amountOut, c.config.Amount)
-	//log.Println(c.name, c.config.Amount, amountOut, result, c.want)
-
 	if result.Cmp(c.want) >= 0 {
-		log.Println(c.name, c.config.Amount, amountOut, result, c.want)
-		//swap
 		return true
 	}
 	return false
+}
+
+// one dollar strategy
+// bnb price
+func calculatePrice(pairLength int, config *swapConfig, out *big.Int) *big.Int {
+	price := new(big.Int).Set(out)
+	price.Sub(price, config.Amount)
+	price.Sub(price, config.Profit)
+	price.Div(price, big.NewInt(2*int64(pairLength)))
+	price.Div(price, config.Cost)
+	price.Div(price, config.Rate)
+	return price
 }
 
 func calculateWant(pairLength int, config *swapConfig) *big.Int {
@@ -80,8 +98,23 @@ func calculateWant(pairLength int, config *swapConfig) *big.Int {
 	want := new(big.Int)
 	want.Mul(config.Cost, config.Price)
 	want.Mul(want, big.NewInt(int64(pairLength)))
-	want.Mul(want, big.NewInt(int64(500))) // bnb to busd
+	want.Mul(want, config.Rate) // bnb to busd
 	want.Add(want, config.Profit)
+	return want
+}
+
+// busd want
+func calculateWantWithPrice(bnbCost, rate *big.Int) *big.Int {
+	want := new(big.Int).Mul(bnbCost, rate)
+	return want
+}
+
+// bnb cost
+func calculateCostWithPrice(pairLength int, config *swapConfig, price *big.Int) *big.Int {
+	// contract * cost * price + profit
+	want := new(big.Int)
+	want.Mul(config.Cost, price)
+	want.Mul(want, big.NewInt(int64(pairLength)))
 	return want
 }
 

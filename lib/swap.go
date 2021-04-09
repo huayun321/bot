@@ -29,17 +29,19 @@ type Swap struct {
 
 type TxLimiter struct {
 	sync.Mutex
-	lastTx int64
+	lastTx   int64
+	lastPath string
 }
 
-func (tl *TxLimiter) check() bool {
+func (tl *TxLimiter) check(path string) bool {
 	tl.Lock()
 	defer tl.Unlock()
 	now := time.Now().Unix()
-	if now-tl.lastTx <= 0 {
+	if tl.lastPath == path && now-tl.lastTx <= 0 {
 		return false
 	}
 	tl.lastTx = now
+	tl.lastPath = path
 	return true
 }
 
@@ -87,7 +89,7 @@ func newSwap(b *Bot) *Swap {
 }
 
 func (s *Swap) pendingNonce() {
-	t := time.NewTicker(time.Second)
+	t := time.NewTicker(10 * time.Millisecond)
 	for range t.C {
 		nonce, err := s.b.rpc.PendingNonceAt(context.Background(), s.public)
 		if err != nil {
@@ -97,8 +99,8 @@ func (s *Swap) pendingNonce() {
 	}
 }
 
-func (s *Swap) startTx(amountIn, amountOut *big.Int, path []common.Address) {
-	if ok := s.tl.check(); !ok {
+func (s *Swap) startTx(amountIn, amountOut, price *big.Int, path []common.Address, pathName string) {
+	if ok := s.tl.check(pathName); !ok {
 		return
 	}
 	//if atomic.LoadInt64(&s.limit) <= 0 {
@@ -113,15 +115,17 @@ func (s *Swap) startTx(amountIn, amountOut *big.Int, path []common.Address) {
 	auth.Nonce = big.NewInt(int64(s.nonce))
 	auth.Value = big.NewInt(0)     // in wei
 	auth.GasLimit = uint64(360000) // in units
-	auth.GasPrice = s.gasPrice
+	auth.GasPrice = price
 
 	deadLine := time.Now().Unix() + 600
 	dlb := big.NewInt(deadLine)
+
+	log.Println(pathName, amountIn, amountOut, price)
 
 	tx, err := s.router.SwapExactTokensForTokens(auth, amountIn, amountOut, path, s.public, dlb)
 	if err != nil {
 		log.Println("SwapExactTokensForTokens", err)
 		return
 	}
-	log.Println(tx.Hash())
+	log.Println(pathName, tx.Hash())
 }
