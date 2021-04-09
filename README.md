@@ -70,6 +70,8 @@ gprice 自动化 get sugesst
 
 如果不使用bnb 那么油费的计算应该要改变
 
+写个合约
+
 
 
 
