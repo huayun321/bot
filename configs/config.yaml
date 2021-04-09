@@ -44,7 +44,7 @@ Tokens:
     band: "0xad6caeb32cd2c308980a548bd0bc5aa4306c6c18"
     sfp: "0xd41fdb03ba84762dd66a0af1a6c8540ff1ba5dfb"
 Swap:
-  amount: "100000000000000000000" #100 busd
+  amount: "1000000000000000000000" #1000 busd
   profit: "1000000000000000000" # 1 busd
   price: "5000000001" # 5g
   cost: "120000"
