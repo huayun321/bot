@@ -66,8 +66,10 @@ func (c *Chain) handleEvent() {
 		if price.Cmp(c.config.Max) >= 0 {
 			price = c.config.Max
 		}
+
 		cost := calculateCostWithPrice(len(c.pairs), c.config, price) //bnb cost
 		want := calculateWantWithPrice(cost, c.config.Rate)           // busd want
+		log.Println(c.name, c.config.Amount, out, new(big.Int).Add(c.config.Amount, want), price)
 		c.swap.startTx(c.config.Amount, new(big.Int).Add(c.config.Amount, want), price, c.path, c.name)
 	}
 }

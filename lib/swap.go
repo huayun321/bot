@@ -117,11 +117,8 @@ func (s *Swap) startTx(amountIn, amountOut, price *big.Int, path []common.Addres
 	auth.GasLimit = uint64(360000) // in units
 	auth.GasPrice = price
 
-	deadLine := time.Now().Unix() + 600
+	deadLine := time.Now().Unix() + 5
 	dlb := big.NewInt(deadLine)
-
-	log.Println(pathName, amountIn, amountOut, price)
-
 	tx, err := s.router.SwapExactTokensForTokens(auth, amountIn, amountOut, path, s.public, dlb)
 	if err != nil {
 		log.Println("SwapExactTokensForTokens", err)
