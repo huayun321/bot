@@ -43,8 +43,10 @@ Tokens:
     twt: "0x4b0f1812e5df2a09796481ff14017e6005508003"
     band: "0xad6caeb32cd2c308980a548bd0bc5aa4306c6c18"
     sfp: "0xd41fdb03ba84762dd66a0af1a6c8540ff1ba5dfb"
+#    from su bot
+    dego: "0x3fda9383a84c05ec8f7630fe10adf1fac13241cc"
 Swap:
-  amount: "1000000000000000000000" #1000 busd
+  amount: "100000000000000000000" #200 busd
   profit: "1000000000000000000" # 1 busd
   price: "5000000008" # 5g
   max:  "18000000008" # max price 18g

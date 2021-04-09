@@ -63,9 +63,9 @@ func (c *Chain) handleEvent() {
 		uid := uuid.NewString()
 		price := calculatePrice(len(c.pairs), c.config, out) // bnb price
 		if price.Cmp(c.config.Price) < 0 {
-			return
+			price = c.config.Price
 		}
-		if price.Cmp(c.config.Max) >= 0 {
+		if price.Cmp(c.config.Max) > 0 {
 			price = c.config.Max
 		}
 
