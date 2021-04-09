@@ -6,6 +6,7 @@ require (
 	github.com/btcsuite/btcd v0.21.0-beta // indirect
 	github.com/ethereum/go-ethereum v1.10.1
 	github.com/fsnotify/fsnotify v1.4.9
+	github.com/google/uuid v1.2.0 // indirect
 	github.com/kokardy/listing v0.0.0-20140516154625-795534c33c5a
 	github.com/sirupsen/logrus v1.8.1 // indirect
 	github.com/spf13/viper v1.7.1

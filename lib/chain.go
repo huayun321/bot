@@ -3,6 +3,7 @@ package lib
 import (
 	"errors"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/google/uuid"
 	"log"
 	"math/big"
 )
@@ -59,6 +60,7 @@ func (c *Chain) handleEvent() {
 	ok := c.checkProfit(out)
 	if ok {
 		// new price
+		uid := uuid.NewString()
 		price := calculatePrice(len(c.pairs), c.config, out) // bnb price
 		if price.Cmp(c.config.Price) < 0 {
 			return
@@ -69,8 +71,8 @@ func (c *Chain) handleEvent() {
 
 		cost := calculateCostWithPrice(len(c.pairs), c.config, price) //bnb cost
 		want := calculateWantWithPrice(cost, c.config.Rate)           // busd want
-		log.Println(c.name, c.config.Amount, out, new(big.Int).Add(c.config.Amount, want), price)
-		c.swap.startTx(c.config.Amount, new(big.Int).Add(c.config.Amount, want), price, c.path, c.name)
+		log.Println(uid, c.name, c.config.Amount, out, new(big.Int).Add(c.config.Amount, want), price)
+		c.swap.startTx(c.config.Amount, new(big.Int).Add(c.config.Amount, want), price, c.path, c.name, uid)
 	}
 }
 

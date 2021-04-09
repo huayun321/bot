@@ -99,7 +99,7 @@ func (s *Swap) pendingNonce() {
 	}
 }
 
-func (s *Swap) startTx(amountIn, amountOut, price *big.Int, path []common.Address, pathName string) {
+func (s *Swap) startTx(amountIn, amountOut, price *big.Int, path []common.Address, pathName, uid string) {
 	if ok := s.tl.check(pathName); !ok {
 		return
 	}
@@ -121,8 +121,8 @@ func (s *Swap) startTx(amountIn, amountOut, price *big.Int, path []common.Addres
 	dlb := big.NewInt(deadLine)
 	tx, err := s.router.SwapExactTokensForTokens(auth, amountIn, amountOut, path, s.public, dlb)
 	if err != nil {
-		log.Println("SwapExactTokensForTokens", err, price)
+		log.Println(uid, pathName, "SwapExactTokensForTokens", err, price)
 		return
 	}
-	log.Println(pathName, tx.Hash(), price)
+	log.Println(uid, pathName, tx.Hash(), price)
 }
