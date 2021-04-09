@@ -97,7 +97,7 @@ func (s *Swap) pendingNonce() {
 	}
 }
 
-func (s *Swap) startTx(amountIn, amountOut *big.Int, path []common.Address) {
+func (s *Swap) startTx(amountIn, amountOut, price *big.Int, path []common.Address) {
 	if ok := s.tl.check(); !ok {
 		return
 	}
@@ -113,7 +113,7 @@ func (s *Swap) startTx(amountIn, amountOut *big.Int, path []common.Address) {
 	auth.Nonce = big.NewInt(int64(s.nonce))
 	auth.Value = big.NewInt(0)     // in wei
 	auth.GasLimit = uint64(360000) // in units
-	auth.GasPrice = s.gasPrice
+	auth.GasPrice = price
 
 	deadLine := time.Now().Unix() + 600
 	dlb := big.NewInt(deadLine)

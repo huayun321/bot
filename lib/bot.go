@@ -17,6 +17,7 @@ type swapConfig struct {
 	Profit *big.Int
 	Price  *big.Int
 	Cost   *big.Int
+	Rate   *big.Int
 }
 
 type Bot struct {
@@ -184,11 +185,16 @@ func parseSwapSetting() *swapConfig {
 	if !ok {
 		log.Fatal(errors.New("parse cost error"))
 	}
+	rate, ok := new(big.Int).SetString(global.SwapSetting.Rate, 10)
+	if !ok {
+		log.Fatal(errors.New("parse rate error"))
+	}
 	sc := &swapConfig{
 		Amount: amountIn,
 		Profit: profit,
 		Price:  price,
 		Cost:   cost,
+		Rate:   rate,
 	}
 	return sc
 }

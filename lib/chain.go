@@ -58,21 +58,32 @@ func (c *Chain) handleEvent() {
 	}
 	ok := c.checkProfit(out)
 	if ok {
-		c.swap.startTx(c.config.Amount, out.Add(c.config.Amount, c.want), c.path)
+		// new price
+		price := calculatePrice(len(c.pairs), c.config, out)
+		cost := calculateCostWithPrice(len(c.pairs), c.config, price)
+		log.Println(c.name, c.config.Amount, out, new(big.Int).Sub(out, cost), cost)
+		c.swap.startTx(c.config.Amount, out, price, c.path)
 	}
 }
 
 func (c *Chain) checkProfit(amountOut *big.Int) bool {
 	result := new(big.Int)
 	result.Sub(amountOut, c.config.Amount)
-	//log.Println(c.name, c.config.Amount, amountOut, result, c.want)
-
 	if result.Cmp(c.want) >= 0 {
-		log.Println(c.name, c.config.Amount, amountOut, result, c.want)
-		//swap
 		return true
 	}
 	return false
+}
+
+// one dollar strategy
+func calculatePrice(pairLength int, config *swapConfig, out *big.Int) *big.Int {
+	price := new(big.Int).Set(out)
+	price.Sub(price, config.Amount)
+	price.Sub(price, config.Profit)
+	price.Div(price, big.NewInt(int64(pairLength)))
+	price.Div(price, config.Cost)
+	price.Div(price, config.Rate)
+	return price
 }
 
 func calculateWant(pairLength int, config *swapConfig) *big.Int {
@@ -80,9 +91,31 @@ func calculateWant(pairLength int, config *swapConfig) *big.Int {
 	want := new(big.Int)
 	want.Mul(config.Cost, config.Price)
 	want.Mul(want, big.NewInt(int64(pairLength)))
-	want.Mul(want, big.NewInt(int64(500))) // bnb to busd
+	want.Mul(want, config.Rate) // bnb to busd
 	want.Add(want, config.Profit)
 	return want
+}
+
+func calculateCostWithPrice(pairLength int, config *swapConfig, price *big.Int) *big.Int {
+	// contract * cost * price + profit
+	want := new(big.Int)
+	want.Mul(config.Cost, price)
+	want.Mul(want, big.NewInt(int64(pairLength)))
+	want.Add(want, config.Profit)
+	return want
+}
+
+func checkProfitWithPrice(amountOut, amountIn, newWant *big.Int, name string) bool {
+	result := new(big.Int)
+	result.Sub(amountOut, amountIn)
+	//log.Println(c.name, c.config.Amount, amountOut, result, c.want)
+	// check
+	if result.Cmp(newWant) >= 0 {
+		log.Println(name, amountIn, amountOut, result, newWant)
+		//swap
+		return true
+	}
+	return false
 }
 
 func getAmountOut(amountIn, reserveIn, reserveOut *big.Int) (*big.Int, error) {

@@ -21,6 +21,7 @@ type SwapSetting struct {
 	Profit string
 	Price  string
 	Cost   string
+	Rate   string
 }
 
 type AccountSetting struct {
