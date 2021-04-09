@@ -124,5 +124,5 @@ func (s *Swap) startTx(amountIn, amountOut, price *big.Int, path []common.Addres
 		log.Println("SwapExactTokensForTokens", err)
 		return
 	}
-	log.Println(pathName, tx.Hash())
+	log.Println(pathName, tx.Hash(), price)
 }
