@@ -60,7 +60,15 @@ watch config
 
 full node 重新测试
 
+竞价
 
+日志统计
+
+平台化 数据分析 自动配置 
+
+gprice 自动化 get sugesst
+
+如果不使用bnb 那么油费的计算应该要改变
 
 
 

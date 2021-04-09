@@ -80,6 +80,7 @@ func calculateWant(pairLength int, config *swapConfig) *big.Int {
 	want := new(big.Int)
 	want.Mul(config.Cost, config.Price)
 	want.Mul(want, big.NewInt(int64(pairLength)))
+	want.Mul(want, big.NewInt(int64(500))) // bnb to busd
 	want.Add(want, config.Profit)
 	return want
 }
