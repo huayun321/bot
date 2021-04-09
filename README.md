@@ -56,6 +56,10 @@ low nonce //ok
 todo
 任意位数的token
 
+watch config
+
+full node 重新测试
+
 
 
 
