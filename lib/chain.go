@@ -59,10 +59,16 @@ func (c *Chain) handleEvent() {
 	ok := c.checkProfit(out)
 	if ok {
 		// new price
-		price := calculatePrice(len(c.pairs), c.config, out)          // bnb price
+		price := calculatePrice(len(c.pairs), c.config, out) // bnb price
+		if price.Cmp(c.config.Price) < 0 {
+			return
+		}
+		if price.Cmp(c.config.Max) >= 0 {
+			return
+		}
 		cost := calculateCostWithPrice(len(c.pairs), c.config, price) //bnb cost
 		want := calculateWantWithPrice(cost, c.config.Rate)           // busd want
-		log.Println(c.name, c.config.Amount, out, new(big.Int).Sub(out, want), cost)
+		log.Println(c.name, c.config.Amount, out, new(big.Int).Sub(out, want), cost, price)
 		c.swap.startTx(c.config.Amount, out, price, c.path)
 	}
 }
@@ -82,7 +88,7 @@ func calculatePrice(pairLength int, config *swapConfig, out *big.Int) *big.Int {
 	price := new(big.Int).Set(out)
 	price.Sub(price, config.Amount)
 	price.Sub(price, config.Profit)
-	price.Div(price, big.NewInt(int64(pairLength)))
+	price.Div(price, big.NewInt(2*int64(pairLength)))
 	price.Div(price, config.Cost)
 	price.Div(price, config.Rate)
 	return price

@@ -20,6 +20,7 @@ type SwapSetting struct {
 	Amount string
 	Profit string
 	Price  string
+	Max    string
 	Cost   string
 	Rate   string
 }

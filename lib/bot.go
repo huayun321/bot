@@ -16,6 +16,7 @@ type swapConfig struct {
 	Amount *big.Int
 	Profit *big.Int
 	Price  *big.Int
+	Max    *big.Int
 	Cost   *big.Int
 	Rate   *big.Int
 }
@@ -189,12 +190,17 @@ func parseSwapSetting() *swapConfig {
 	if !ok {
 		log.Fatal(errors.New("parse rate error"))
 	}
+	max, ok := new(big.Int).SetString(global.SwapSetting.Max, 10)
+	if !ok {
+		log.Fatal(errors.New("parse max error"))
+	}
 	sc := &swapConfig{
 		Amount: amountIn,
 		Profit: profit,
 		Price:  price,
 		Cost:   cost,
 		Rate:   rate,
+		Max:    max,
 	}
 	return sc
 }
