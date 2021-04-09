@@ -59,9 +59,10 @@ func (c *Chain) handleEvent() {
 	ok := c.checkProfit(out)
 	if ok {
 		// new price
-		price := calculatePrice(len(c.pairs), c.config, out)
-		cost := calculateCostWithPrice(len(c.pairs), c.config, price)
-		log.Println(c.name, c.config.Amount, out, new(big.Int).Sub(out, cost), cost)
+		price := calculatePrice(len(c.pairs), c.config, out)          // bnb price
+		cost := calculateCostWithPrice(len(c.pairs), c.config, price) //bnb cost
+		want := calculateWantWithPrice(cost, c.config.Rate)           // busd want
+		log.Println(c.name, c.config.Amount, out, new(big.Int).Sub(out, want), cost)
 		c.swap.startTx(c.config.Amount, out, price, c.path)
 	}
 }
@@ -76,6 +77,7 @@ func (c *Chain) checkProfit(amountOut *big.Int) bool {
 }
 
 // one dollar strategy
+// bnb price
 func calculatePrice(pairLength int, config *swapConfig, out *big.Int) *big.Int {
 	price := new(big.Int).Set(out)
 	price.Sub(price, config.Amount)
@@ -96,26 +98,19 @@ func calculateWant(pairLength int, config *swapConfig) *big.Int {
 	return want
 }
 
+// busd want
+func calculateWantWithPrice(bnbCost, rate *big.Int) *big.Int {
+	want := new(big.Int).Mul(bnbCost, rate)
+	return want
+}
+
+// bnb cost
 func calculateCostWithPrice(pairLength int, config *swapConfig, price *big.Int) *big.Int {
 	// contract * cost * price + profit
 	want := new(big.Int)
 	want.Mul(config.Cost, price)
 	want.Mul(want, big.NewInt(int64(pairLength)))
-	want.Add(want, config.Profit)
 	return want
-}
-
-func checkProfitWithPrice(amountOut, amountIn, newWant *big.Int, name string) bool {
-	result := new(big.Int)
-	result.Sub(amountOut, amountIn)
-	//log.Println(c.name, c.config.Amount, amountOut, result, c.want)
-	// check
-	if result.Cmp(newWant) >= 0 {
-		log.Println(name, amountIn, amountOut, result, newWant)
-		//swap
-		return true
-	}
-	return false
 }
 
 func getAmountOut(amountIn, reserveIn, reserveOut *big.Int) (*big.Int, error) {
