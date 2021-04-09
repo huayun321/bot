@@ -120,10 +120,12 @@ func (s *Swap) startTx(amountIn, amountOut, price *big.Int, path []common.Addres
 	deadLine := time.Now().Unix() + 600
 	dlb := big.NewInt(deadLine)
 
+	log.Println(pathName, amountIn, amountOut, price)
+
 	tx, err := s.router.SwapExactTokensForTokens(auth, amountIn, amountOut, path, s.public, dlb)
 	if err != nil {
 		log.Println("SwapExactTokensForTokens", err)
 		return
 	}
-	log.Println(tx.Hash())
+	log.Println(pathName, tx.Hash())
 }
