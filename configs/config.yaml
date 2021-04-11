@@ -48,7 +48,7 @@ Tokens:
 Swap:
   amount: "200000000000000000000" #200 busd
   profit: "100000000000000000" # 0.1 busd
-  price: "5000000008" # 5g
+  price: "5500000008" # 5g
   max:  "20000000008" # max price 50g
   cost: "170000"
   limit: "510000"
