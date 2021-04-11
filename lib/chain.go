@@ -91,7 +91,8 @@ func calculatePrice(pairLength int, config *swapConfig, out *big.Int) *big.Int {
 	price := new(big.Int).Set(out)
 	price.Sub(price, config.Amount)
 	price.Sub(price, config.Profit)
-	price.Div(price, big.NewInt(2*int64(pairLength)))
+	price.Mul(price, big.NewInt(2))
+	price.Div(price, big.NewInt(3*int64(pairLength)))
 	price.Div(price, config.Cost)
 	price.Div(price, config.Rate)
 	return price
