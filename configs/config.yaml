@@ -5,7 +5,7 @@ Server:
   ws: "wss://crimson-wandering-haze.bsc.quiknode.pro/bbc7d3d5ddca4bb26eedcaf9211821722f27c3de/"
 Contract:
   factory: "0xBCfCcbde45cE874adCB698cC183deBcF17952812"
-  router: "0x05fF2B0DB69458A0750badebc4f9e13aDd608C7F"
+  router: "0x92D3342AcbFb910Cd625f4F528dCBA5a63A1eE45"
 Tokens:
   symbol: "busd"
   address: "0xe9e7cea3dedca5984780bafc599bd69add087d56"

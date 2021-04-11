@@ -73,5 +73,12 @@ gprice 自动化 get sugesst
 写个合约
 
 
+获取 最新的pair对 得到相应TOKEN
+获取波动大的pair对
+支持 不同小数点的 token
+余额策略
+
+
+
 
 
