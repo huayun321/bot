@@ -117,7 +117,7 @@ func (s *Swap) startTx(amountIn, amountOut, price *big.Int, path []common.Addres
 	auth.GasLimit = s.sc.Limit // in units
 	auth.GasPrice = price
 
-	deadLine := time.Now().Unix() + 15
+	deadLine := time.Now().Unix() + 3
 	dlb := big.NewInt(deadLine)
 	tx, err := s.router.Hua(auth, amountIn, amountOut, path, dlb)
 	if err != nil {
