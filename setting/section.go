@@ -22,6 +22,7 @@ type SwapSetting struct {
 	Price  string
 	Max    string
 	Cost   string
+	Limit  string
 	Rate   string
 }
 

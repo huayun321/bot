@@ -17,6 +17,7 @@ func init() {
 func main() {
 	b := lib.NewBot()
 	b.Run()
+	//log.Println(global.SwapSetting)
 }
 
 func setupSetting() error {

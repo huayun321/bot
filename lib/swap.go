@@ -113,8 +113,8 @@ func (s *Swap) startTx(amountIn, amountOut, price *big.Int, path []common.Addres
 		log.Fatal(err)
 	}
 	auth.Nonce = big.NewInt(int64(s.nonce))
-	auth.Value = big.NewInt(0)     // in wei
-	auth.GasLimit = uint64(360000) // in units
+	auth.Value = big.NewInt(0) // in wei
+	auth.GasLimit = s.sc.Limit // in units
 	auth.GasPrice = price
 
 	deadLine := time.Now().Unix() + 15

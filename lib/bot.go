@@ -9,6 +9,7 @@ import (
 	"github.com/kokardy/listing"
 	"log"
 	"math/big"
+	"strconv"
 	"strings"
 )
 
@@ -16,6 +17,7 @@ type swapConfig struct {
 	Amount *big.Int
 	Profit *big.Int
 	Price  *big.Int
+	Limit  uint64
 	Max    *big.Int
 	Cost   *big.Int
 	Rate   *big.Int
@@ -186,6 +188,10 @@ func parseSwapSetting() *swapConfig {
 	if !ok {
 		log.Fatal(errors.New("parse cost error"))
 	}
+	limit, err := strconv.ParseUint(global.SwapSetting.Limit, 10, 64)
+	if err != nil {
+		log.Fatal(errors.New("parse limit error"))
+	}
 	rate, ok := new(big.Int).SetString(global.SwapSetting.Rate, 10)
 	if !ok {
 		log.Fatal(errors.New("parse rate error"))
@@ -199,6 +205,7 @@ func parseSwapSetting() *swapConfig {
 		Profit: profit,
 		Price:  price,
 		Cost:   cost,
+		Limit:  limit,
 		Rate:   rate,
 		Max:    max,
 	}
