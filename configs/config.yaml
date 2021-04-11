@@ -46,10 +46,10 @@ Tokens:
 #    from su bot
     dego: "0x3fda9383a84c05ec8f7630fe10adf1fac13241cc"
 Swap:
-  amount: "1000000000000000000000" #1000 busd
-  profit: "1000000000000000000" # 1 busd
+  amount: "500000000000000000000" #500 busd
+  profit: "500000000000000000" # 0.5 busd
   price: "5000000008" # 5g
-  max:  "50000000008" # max price 50g
+  max:  "30000000008" # max price 50g
   cost: "200000"
   limit: "600000"
   rate: "500"

@@ -89,7 +89,7 @@ func newSwap(b *Bot) *Swap {
 }
 
 func (s *Swap) pendingNonce() {
-	t := time.NewTicker(10 * time.Millisecond)
+	t := time.NewTicker(100 * time.Millisecond)
 	for range t.C {
 		nonce, err := s.b.rpc.PendingNonceAt(context.Background(), s.public)
 		if err != nil {
