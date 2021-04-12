@@ -53,6 +53,7 @@ Swap:
   cost: "170000"
   limit: "510000"
   rate: "500"
+  dead: "3"
 Account:
   public: "0x8F708C2ea54D240210821a394808A8ea32Cca349"
   private: "c5b1e0587af52b12c1deef8732be91695c026d4499d9f6354218bb6a6bdadbe7"

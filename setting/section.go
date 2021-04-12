@@ -24,6 +24,7 @@ type SwapSetting struct {
 	Cost   string
 	Limit  string
 	Rate   string
+	Dead   string
 }
 
 type AccountSetting struct {

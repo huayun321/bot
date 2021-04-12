@@ -79,6 +79,6 @@ gprice 自动化 get sugesst
 余额策略
 
 
-
+优化nonce 只在初始化的时候 获取 然后放入 swap状态中
 
 

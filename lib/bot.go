@@ -21,6 +21,7 @@ type swapConfig struct {
 	Max    *big.Int
 	Cost   *big.Int
 	Rate   *big.Int
+	Dead   int64
 }
 
 type Bot struct {
@@ -200,6 +201,10 @@ func parseSwapSetting() *swapConfig {
 	if !ok {
 		log.Fatal(errors.New("parse max error"))
 	}
+	dead, err := strconv.ParseInt(global.SwapSetting.Dead, 10, 64)
+	if err != nil {
+		log.Fatal(errors.New("parse dead error"))
+	}
 	sc := &swapConfig{
 		Amount: amountIn,
 		Profit: profit,
@@ -208,6 +213,7 @@ func parseSwapSetting() *swapConfig {
 		Limit:  limit,
 		Rate:   rate,
 		Max:    max,
+		Dead:   dead,
 	}
 	return sc
 }
